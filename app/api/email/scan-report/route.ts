@@ -17,16 +17,25 @@ export async function POST(req: NextRequest) {
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
     const {
-      email,
       scan,
       repo,
       vulnerabilities,
     }: {
-      email: string;
+      email?: string;
       scan: Scan;
       repo: Repository;
       vulnerabilities: Vulnerability[];
     } = await req.json();
+
+    // Verify the repo belongs to the authenticated user (prevent IDOR)
+    const { data: repoCheck } = await supabase
+      .from("repositories")
+      .select("id")
+      .eq("id", repo.id)
+      .eq("user_id", user.id)
+      .single();
+    if (!repoCheck)
+      return Response.json({ error: "Repository access denied" }, { status: 403 });
 
     if (!email || !scan || !repo) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
@@ -45,10 +54,9 @@ export async function POST(req: NextRequest) {
         ? `🚨 ${criticalCount} critical issue${criticalCount > 1 ? "s" : ""} found in ${repo.name}`
         : `Security scan complete — ${repo.name}`;
 
-    // Send to the authenticated user's email.
-    // RESEND_TO_EMAIL overrides the recipient in sandbox/demo mode only.
-    // Remove this override and verify your domain at resend.com/domains for production.
-    const toEmail = process.env.RESEND_TO_EMAIL ?? user.email ?? email;
+    // Always use the authenticated user's email — never trust client-supplied email.
+    // RESEND_TO_EMAIL overrides in sandbox/demo mode (Resend free tier restriction).
+    const toEmail = process.env.RESEND_TO_EMAIL ?? user.email;
 
     const { data, error } = await resend.emails.send({
       from: "SecuGo <onboarding@resend.dev>",

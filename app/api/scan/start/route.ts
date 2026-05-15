@@ -53,6 +53,12 @@ export async function POST(req: NextRequest) {
     if (!repositoryId || !fullName || !token)
       return Response.json({ error: "Missing required fields" }, { status: 400 });
 
+    // Validate fullName (owner/repo) and branch against safe character sets
+    const validName = /^[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+$/.test(fullName);
+    const validBranch = !branch || /^[a-zA-Z0-9/_.-]+$/.test(branch);
+    if (!validName || !validBranch)
+      return Response.json({ error: "Invalid repository name or branch" }, { status: 400 });
+
     const effectiveBranch = branch ?? "main";
 
     // Verify repo belongs to authenticated user (prevent IDOR)

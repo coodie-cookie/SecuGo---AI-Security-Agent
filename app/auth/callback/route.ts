@@ -3,8 +3,10 @@ import { createClient } from "@/lib/supabase/server";
 
 function safeNext(raw: string | null): string {
   if (!raw) return "/dashboard";
-  // Only allow relative paths starting with /  to prevent open redirect
-  if (raw.startsWith("/") && !raw.startsWith("//")) return raw;
+  try {
+    // Strict allowlist: must be a relative path with only safe characters
+    if (/^\/[a-zA-Z0-9/_-]*$/.test(raw)) return raw;
+  } catch {}
   return "/dashboard";
 }
 
