@@ -14,7 +14,9 @@ import { createClient } from "@/lib/supabase/client";
 export default function LoginPage() {
   const router = useRouter();
   const params = useSearchParams();
-  const next = params.get("next") || "/dashboard";
+  // Validate next to prevent open redirect — only allow relative paths
+  const rawNext = params.get("next") || "/dashboard";
+  const next = rawNext.startsWith("/") && !rawNext.startsWith("//") ? rawNext : "/dashboard";
   const [loading, setLoading] = useState<"default" | "switch" | null>(null);
 
   const signInWithGitHub = async (forceNew = false) => {
@@ -41,7 +43,7 @@ export default function LoginPage() {
       return;
     }
 
-    document.cookie = `secugo_demo_session=1; path=/; max-age=${60 * 60 * 24 * 30}`;
+    document.cookie = `secugo_demo_session=1; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Strict`;
     const onboarded =
       typeof window !== "undefined" &&
       localStorage.getItem("secugo_onboarding_complete") === "true";

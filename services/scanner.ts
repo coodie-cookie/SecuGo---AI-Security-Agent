@@ -122,15 +122,16 @@ const CODE_PATTERNS: {
   },
   {
     name: "dangerouslySetInnerHTML (XSS Risk)",
-    regex: /dangerouslySetInnerHTML/,
+    // Only flag in component files, not layout.tsx where it's used for safe inline scripts
+    regex: /dangerouslySetInnerHTML=\{\{\s*__html:\s*(?![`"'])/,
     severity: "high",
     category: "injection",
     description: "dangerouslySetInnerHTML can execute malicious scripts if the content includes unsanitized user input.",
     fix: "Sanitize HTML with DOMPurify before passing to dangerouslySetInnerHTML, or use a safe rendering library.",
+    fileFilter: /(?<!layout)\.(tsx|jsx)$/,
   },
   {
     name: "Wildcard CORS Configuration",
-    // Matches both header string format and JS object property format
     regex: /(?:Access-Control-Allow-Origin["']?\s*[=:]\s*["']?\s*\*|["']Access-Control-Allow-Origin["']\s*:\s*["']\*)/,
     severity: "high",
     category: "config",
@@ -139,8 +140,8 @@ const CODE_PATTERNS: {
   },
   {
     name: "Missing Stripe Webhook Signature Verification",
-    // Matches Stripe import without constructEvent in the same file (checked via whole-file scan below)
-    regex: /stripe.*webhook|webhook.*stripe|checkout\.session\.completed|payment_intent\.(succeeded|failed)/i,
+    // Only match actual Stripe event processing code, NOT text mentions like "Is my Stripe webhook safe?"
+    regex: /body\.type\s*===?\s*["'](?:checkout\.session\.completed|payment_intent\.|customer\.subscription\.)/,
     severity: "high",
     category: "auth",
     description: "A Stripe webhook handler was found. Without signature verification, anyone can send fake payment events to your endpoint.",
@@ -149,12 +150,13 @@ const CODE_PATTERNS: {
   },
   {
     name: "No Rate Limiting on AI Endpoint",
-    regex: /(?:openai|anthropic|gemini|generateContent|createCompletion|chat\.completions)/i,
+    // Universal: matches any AI SDK call pattern across OpenAI, Anthropic, Google, Gemini, Cohere etc.
+    regex: /(?:openai|anthropic|genai|gemini|cohere|mistral|groq|together).*(?:chat|generate|complete|message|content|stream)\s*[\.\(]/i,
     severity: "high",
     category: "config",
     description: "An AI API call was found in a route handler with no visible rate limiting. Without limits, a single user can drain your entire AI budget overnight.",
     fix: "Add rate limiting with Upstash Ratelimit (10-minute setup): npm install @upstash/ratelimit @upstash/redis",
-    fileFilter: /(?:api|route)\.(ts|js)x?$/,
+    fileFilter: /(?:\/api\/.*|route)\.(ts|js)x?$/,
   },
   {
     name: "Unprotected Admin Route",
@@ -343,11 +345,17 @@ function runRegexScan(filePath: string, content: string): Omit<ScanFinding, "aiE
 
   // ── Whole-file checks (patterns that span multiple lines) ──────────────────
 
-  // Stripe webhook without constructEvent: file imports/uses Stripe but never
-  // calls constructEvent — classic vibe-coder mistake
+  // Stripe webhook without constructEvent — only flag actual API route handlers
+  // (files in /api/ or /routes/ that export a POST function and use Stripe)
+  const isApiRoute = /\/api\/|\/route\.(ts|js)x?$/.test(filePath);
+  const hasPostHandler = /export\s+async\s+function\s+POST/.test(content);
+  const importsStripe = /import.*['"]stripe['"]|new\s+Stripe\s*\(/.test(content);
+
   if (
     /\.(ts|js)x?$/.test(filePath) &&
-    /stripe|Stripe/i.test(content) &&
+    isApiRoute &&
+    hasPostHandler &&
+    importsStripe &&
     /webhook|checkout\.session|payment_intent/i.test(content) &&
     !/constructEvent/i.test(content)
   ) {
@@ -360,6 +368,30 @@ function runRegexScan(filePath: string, content: string): Omit<ScanFinding, "aiE
         "A Stripe webhook handler was found but stripe.webhooks.constructEvent() is never called. Anyone can POST fake payment events to this endpoint.",
       suggestedFix:
         "Add: const event = stripe.webhooks.constructEvent(rawBody, sig, process.env.STRIPE_WEBHOOK_SECRET). Reject requests that throw.",
+    });
+  }
+
+  // ── Second pass: AI route with no rate limiting (negative check) ────────────
+  // Universal: if a file in /api/ imports ANY AI SDK and has NO rate limiting keywords → flag it
+  const AI_SDK_IMPORTS = /from\s+['"](?:openai|@anthropic-ai|@google\/generative-ai|@mistralai|groq|cohere-ai|together-ai|@cohere-ai)/i;
+  const HAS_RATE_LIMIT = /rateLimit|rateLimiter|upstash|limiter|throttle|ratelimit/i;
+  const HAS_AI_CALL = /\.(?:chat|generate|complete|message|create|stream|startChat|sendMessage)\s*\(/i;
+
+  if (
+    /\.(ts|js)x?$/.test(filePath) &&
+    /\/api\//.test(filePath) &&
+    AI_SDK_IMPORTS.test(content) &&
+    HAS_AI_CALL.test(content) &&
+    !HAS_RATE_LIMIT.test(content) &&
+    !findings.some((f) => f.title === "No Rate Limiting on AI Endpoint")
+  ) {
+    findings.push({
+      title: "No Rate Limiting on AI Endpoint",
+      severity: "high",
+      category: "config",
+      file: filePath,
+      description: "An AI API call was found in a route handler with no visible rate limiting. Without limits, a single user can drain your entire AI budget overnight.",
+      suggestedFix: "Add rate limiting with Upstash Ratelimit (10-minute setup): npm install @upstash/ratelimit @upstash/redis",
     });
   }
 

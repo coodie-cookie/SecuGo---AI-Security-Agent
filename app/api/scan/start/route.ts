@@ -55,6 +55,15 @@ export async function POST(req: NextRequest) {
 
     const effectiveBranch = branch ?? "main";
 
+    // Verify repo belongs to authenticated user (prevent IDOR)
+    const { data: repoCheck } = await supabase
+      .from("repositories")
+      .select("id")
+      .eq("id", repositoryId)
+      .eq("user_id", user.id)
+      .single();
+    if (!repoCheck) return Response.json({ error: "Repository not found or access denied" }, { status: 403 });
+
     // Get current and previous commit SHAs
     const [latestSha, repoRow] = await Promise.all([
       getLatestCommitSha(fullName, effectiveBranch, token),

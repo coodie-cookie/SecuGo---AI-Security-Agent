@@ -3,12 +3,19 @@ import { Resend } from "resend";
 import { renderToBuffer } from "@react-pdf/renderer";
 import { createElement } from "react";
 import { ScanReportPDF } from "@/components/pdf/scan-report";
+import { createClient } from "@/lib/supabase/server";
 import type { Scan, Vulnerability, Repository } from "@/types";
 
 const resend = new Resend(process.env.RESEND_API_KEY);
 
 export async function POST(req: NextRequest) {
   try {
+    // Require authenticated session
+    const supabase = await createClient();
+    if (!supabase) return Response.json({ error: "Unauthorized" }, { status: 401 });
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
+
     const {
       email,
       scan,
@@ -38,9 +45,10 @@ export async function POST(req: NextRequest) {
         ? `🚨 ${criticalCount} critical issue${criticalCount > 1 ? "s" : ""} found in ${repo.name}`
         : `Security scan complete — ${repo.name}`;
 
-    // In sandbox mode Resend only allows sending to the account owner's email.
-    // For production, verify a domain at resend.com/domains and remove this override.
-    const toEmail = process.env.RESEND_TO_EMAIL ?? email;
+    // Send to the authenticated user's email.
+    // RESEND_TO_EMAIL overrides the recipient in sandbox/demo mode only.
+    // Remove this override and verify your domain at resend.com/domains for production.
+    const toEmail = process.env.RESEND_TO_EMAIL ?? user.email ?? email;
 
     const { data, error } = await resend.emails.send({
       from: "SecuGo <onboarding@resend.dev>",

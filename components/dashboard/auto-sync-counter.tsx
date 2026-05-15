@@ -23,9 +23,12 @@ export function AutoSyncCounter({ onTick }: { onTick?: () => void }) {
     const t = setInterval(() => {
       setCount((c) => {
         if (c <= 1) {
-          setBoom(true);
-          setTimeout(() => setBoom(false), 1800);
-          onTickRef.current?.();
+          // Schedule side-effects outside the setState callback
+          setTimeout(() => {
+            setBoom(true);
+            setTimeout(() => setBoom(false), 1800);
+            onTickRef.current?.();
+          }, 0);
           return INTERVAL;
         }
         return c - 1;

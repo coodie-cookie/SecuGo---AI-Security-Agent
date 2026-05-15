@@ -106,7 +106,7 @@ export function useRealtimeRepos() {
       setLoading(false);
 
       channel = supabase
-        .channel("repos-realtime")
+        .channel(`repos-realtime-${Date.now()}`)
         .on(
           "postgres_changes",
           { event: "*", schema: "public", table: "repositories", filter: `user_id=eq.${session.user.id}` },
