@@ -49,8 +49,14 @@ export async function POST(req: NextRequest) {
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return Response.json({ error: "Unauthorized" }, { status: 401 });
 
-    const { repositoryId, fullName, branch, token, scanId } = await req.json();
-    if (!repositoryId || !fullName || !token)
+    // Get GitHub token from authenticated session (never trust client body)
+    const { data: { session } } = await supabase.auth.getSession();
+    const token = session?.provider_token;
+    if (!token)
+      return Response.json({ error: "GitHub session expired. Please sign in again." }, { status: 401 });
+
+    const { repositoryId, fullName, branch, scanId } = await req.json();
+    if (!repositoryId || !fullName)
       return Response.json({ error: "Missing required fields" }, { status: 400 });
 
     // Validate fullName (owner/repo) and branch against safe character sets

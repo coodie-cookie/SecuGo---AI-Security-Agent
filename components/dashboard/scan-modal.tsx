@@ -82,11 +82,6 @@ export function ScanModal({
       const supabase = createClient();
       if (!supabase) throw new Error("Supabase not configured");
 
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session?.provider_token) {
-        throw new Error("GitHub token not available. Please sign out and sign in again.");
-      }
-
       // Generate scan ID on the client so we can subscribe to Realtime
       // updates immediately, BEFORE the scan starts running on the server.
       const newScanId = crypto.randomUUID();
@@ -102,7 +97,7 @@ export function ScanModal({
 
       const branch = repoData?.default_branch ?? "main";
 
-      // Fire the scan (don't await — let Realtime drive UI updates)
+      // Fire the scan — server reads GitHub token from authenticated Supabase session
       fetch("/api/scan/start", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -111,7 +106,6 @@ export function ScanModal({
           repositoryId: repo.id,
           fullName: repo.fullName,
           branch,
-          token: session.provider_token,
         }),
       })
         .then(async (res) => {

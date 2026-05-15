@@ -1,12 +1,21 @@
 import { NextResponse, type NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 
+// Strict allowlist of safe internal paths after auth callback
+const ALLOWED_NEXT_PATHS = [
+  "/dashboard",
+  "/dashboard/repositories",
+  "/dashboard/scans",
+  "/dashboard/assistant",
+  "/dashboard/settings",
+  "/onboarding",
+];
+
 function safeNext(raw: string | null): string {
   if (!raw) return "/dashboard";
-  try {
-    // Strict allowlist: must be a relative path with only safe characters
-    if (/^\/[a-zA-Z0-9/_-]*$/.test(raw)) return raw;
-  } catch {}
+  // Allow exact matches OR /dashboard/scans/{id}
+  if (ALLOWED_NEXT_PATHS.includes(raw)) return raw;
+  if (/^\/dashboard\/scans\/[a-zA-Z0-9-]+$/.test(raw)) return raw;
   return "/dashboard";
 }
 
@@ -15,33 +24,20 @@ export async function GET(request: NextRequest) {
   const code = searchParams.get("code");
   const next = safeNext(searchParams.get("next"));
 
-  // Only use demo cookie if Supabase isn't configured at all.
-  const supabaseConfigured = !!process.env.NEXT_PUBLIC_SUPABASE_URL;
+  if (!code) return NextResponse.redirect(`${origin}/login`);
 
-  if (code && supabaseConfigured) {
-    const supabase = await createClient();
-    if (supabase) {
-      const { error } = await supabase.auth.exchangeCodeForSession(code);
-      if (!error) {
-        // Clear any stale demo cookie now that we have a real session.
-        const res = NextResponse.redirect(`${origin}${next}`);
-        res.cookies.set("secugo_demo_session", "", { path: "/", maxAge: 0 });
-        return res;
-      }
-    }
-    // If code exchange fails with Supabase configured, redirect back to login.
+  const supabase = await createClient();
+  if (!supabase) {
+    return NextResponse.redirect(`${origin}/login?error=server_misconfigured`);
+  }
+
+  const { error } = await supabase.auth.exchangeCodeForSession(code);
+  if (error) {
     return NextResponse.redirect(`${origin}/login?error=auth_failed`);
   }
 
-  // Demo mode only (no Supabase env vars)
-  if (!supabaseConfigured) {
-    const res = NextResponse.redirect(`${origin}${next}`);
-    res.cookies.set("secugo_demo_session", "1", {
-      path: "/",
-      maxAge: 60 * 60 * 24 * 30,
-    });
-    return res;
-  }
-
-  return NextResponse.redirect(`${origin}/login`);
+  // Always clear any stale demo cookie on successful auth
+  const res = NextResponse.redirect(`${origin}${next}`);
+  res.cookies.set("secugo_demo_session", "", { path: "/", maxAge: 0 });
+  return res;
 }

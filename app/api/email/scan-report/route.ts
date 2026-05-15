@@ -21,7 +21,6 @@ export async function POST(req: NextRequest) {
       repo,
       vulnerabilities,
     }: {
-      email?: string;
       scan: Scan;
       repo: Repository;
       vulnerabilities: Vulnerability[];
@@ -37,7 +36,7 @@ export async function POST(req: NextRequest) {
     if (!repoCheck)
       return Response.json({ error: "Repository access denied" }, { status: 403 });
 
-    if (!email || !scan || !repo) {
+    if (!user.email || !scan || !repo) {
       return Response.json({ error: "Missing required fields" }, { status: 400 });
     }
 
@@ -72,8 +71,8 @@ export async function POST(req: NextRequest) {
     });
 
     if (error) {
-      console.error("Resend error:", error);
-      return Response.json({ error: error.message }, { status: 500 });
+      console.error("Failed to send email");
+      return Response.json({ error: "Failed to send email" }, { status: 500 });
     }
 
     return Response.json({ success: true, id: data?.id });

@@ -43,13 +43,8 @@ export default function LoginPage() {
       return;
     }
 
-    document.cookie = `secugo_demo_session=1; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Strict`;
-    const onboarded =
-      typeof window !== "undefined" &&
-      localStorage.getItem("secugo_onboarding_complete") === "true";
-    setTimeout(() => {
-      router.push(onboarded ? next : "/onboarding");
-    }, 700);
+    // No fallback — Supabase OAuth is required in production
+    setLoading(null);
   };
 
   return (
