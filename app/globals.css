@@ -1,0 +1,408 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  /* Light theme (default) */
+  :root {
+    --background: 220 20% 99%;
+    --foreground: 222 30% 10%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 30% 10%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 30% 10%;
+    --primary: 88 90% 38%;
+    --primary-foreground: 0 0% 100%;
+    --secondary: 220 14% 96%;
+    --secondary-foreground: 222 30% 14%;
+    --muted: 220 14% 96%;
+    --muted-foreground: 222 12% 42%;
+    --accent: 220 14% 95%;
+    --accent-foreground: 222 30% 14%;
+    --destructive: 0 70% 48%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 220 14% 90%;
+    --input: 220 14% 90%;
+    --ring: 88 90% 42%;
+    --radius: 1rem;
+  }
+
+  .dark {
+    --background: 0 0% 4%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 6%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 6%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 88 100% 49%;
+    --primary-foreground: 0 0% 4%;
+    --secondary: 0 0% 10%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 10%;
+    --muted-foreground: 0 0% 60%;
+    --accent: 0 0% 12%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14%;
+    --input: 0 0% 14%;
+    --ring: 88 100% 49%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    @apply bg-background text-foreground antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "ss01", "cv11";
+  }
+  ::selection {
+    background: rgba(107, 249, 0, 0.3);
+    color: inherit;
+  }
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  html.dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+  }
+  html:not(.dark) ::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.12);
+  }
+  ::-webkit-scrollbar-thumb {
+    border-radius: 5px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(107, 249, 0, 0.4);
+  }
+}
+
+@layer utilities {
+  /* Glass surfaces */
+  .glass {
+    background: linear-gradient(
+      135deg,
+      rgba(15, 23, 42, 0.03),
+      rgba(15, 23, 42, 0.005)
+    );
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+  }
+  html.dark .glass {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.04),
+      rgba(255, 255, 255, 0.01)
+    );
+    border-color: rgba(255, 255, 255, 0.06);
+  }
+
+  .glass-strong {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.85),
+      rgba(255, 255, 255, 0.6)
+    );
+    backdrop-filter: blur(28px);
+    -webkit-backdrop-filter: blur(28px);
+    border: 1px solid rgba(15, 23, 42, 0.08);
+  }
+  html.dark .glass-strong {
+    background: linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.08),
+      rgba(255, 255, 255, 0.02)
+    );
+    border-color: rgba(255, 255, 255, 0.08);
+  }
+
+  .gradient-border {
+    position: relative;
+  }
+  .gradient-border::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 1px;
+    border-radius: inherit;
+    background: linear-gradient(
+      135deg,
+      rgba(107, 249, 0, 0.4),
+      rgba(107, 249, 0, 0.05) 40%,
+      transparent 70%
+    );
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+
+  /* Text gradients — adapt by theme */
+  .text-gradient {
+    background: linear-gradient(135deg, #2d630c 0%, #52c700 50%, #6bf900 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  html.dark .text-gradient {
+    background: linear-gradient(135deg, #fff 0%, #cdff90 50%, #6bf900 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .text-gradient-subtle {
+    background: linear-gradient(180deg, #0a0a0a 0%, rgba(15, 23, 42, 0.65) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  html.dark .text-gradient-subtle {
+    background: linear-gradient(180deg, #fff 0%, rgba(255, 255, 255, 0.65) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+
+  .glow-lime {
+    box-shadow:
+      0 0 0 1px rgba(107, 249, 0, 0.2),
+      0 0 24px rgba(107, 249, 0, 0.25),
+      inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(15, 23, 42, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(15, 23, 42, 0.05) 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+  html.dark .grid-bg {
+    background-image:
+      linear-gradient(to right, rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  }
+
+  .mask-fade-y {
+    mask-image: linear-gradient(180deg, transparent, black 10%, black 90%, transparent);
+    -webkit-mask-image: linear-gradient(180deg, transparent, black 10%, black 90%, transparent);
+  }
+
+  .mask-radial {
+    mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  }
+
+  .shimmer {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.06),
+      transparent
+    );
+    background-size: 200% 100%;
+    animation: shimmer 2.5s linear infinite;
+  }
+
+  .noise {
+    position: relative;
+  }
+  .noise::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.04;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='200' height='200'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.6'/></svg>");
+  }
+}
+
+/* =========================================================
+   Light-mode overrides for hardcoded color utilities.
+   The dark UI uses many `text-white/XX`, `bg-white/[0.0X]`, and
+   `border-white/[0.0X]` classes. In light mode, swap those to a
+   slate palette so contrast stays readable without refactoring
+   every component.
+   ========================================================= */
+
+/* ---- text-white/XX → slate text ---- */
+html:not(.dark) .text-white { color: rgb(15 23 42); }
+html:not(.dark) .text-white\/30 { color: rgb(15 23 42 / 0.42); }
+html:not(.dark) .text-white\/35 { color: rgb(15 23 42 / 0.48); }
+html:not(.dark) .text-white\/40 { color: rgb(15 23 42 / 0.52); }
+html:not(.dark) .text-white\/45 { color: rgb(15 23 42 / 0.58); }
+html:not(.dark) .text-white\/50 { color: rgb(15 23 42 / 0.62); }
+html:not(.dark) .text-white\/55 { color: rgb(15 23 42 / 0.65); }
+html:not(.dark) .text-white\/60 { color: rgb(15 23 42 / 0.7); }
+html:not(.dark) .text-white\/65 { color: rgb(15 23 42 / 0.74); }
+html:not(.dark) .text-white\/70 { color: rgb(15 23 42 / 0.78); }
+html:not(.dark) .text-white\/75 { color: rgb(15 23 42 / 0.82); }
+html:not(.dark) .text-white\/80 { color: rgb(15 23 42 / 0.86); }
+html:not(.dark) .text-white\/85 { color: rgb(15 23 42 / 0.9); }
+html:not(.dark) .text-white\/90 { color: rgb(15 23 42 / 0.94); }
+
+/* placeholder */
+html:not(.dark) .placeholder\:text-white\/30::placeholder {
+  color: rgb(15 23 42 / 0.4);
+}
+
+/* ---- bg-white/[0.0X] → subtle slate-tinted surfaces ---- */
+html:not(.dark) .bg-white\/\[0\.01\] { background-color: rgb(15 23 42 / 0.015); }
+html:not(.dark) .bg-white\/\[0\.02\] { background-color: rgb(15 23 42 / 0.025); }
+html:not(.dark) .bg-white\/\[0\.025\] { background-color: rgb(15 23 42 / 0.03); }
+html:not(.dark) .bg-white\/\[0\.03\] { background-color: rgb(15 23 42 / 0.035); }
+html:not(.dark) .bg-white\/\[0\.035\] { background-color: rgb(15 23 42 / 0.04); }
+html:not(.dark) .bg-white\/\[0\.04\] { background-color: rgb(15 23 42 / 0.045); }
+html:not(.dark) .bg-white\/\[0\.05\] { background-color: rgb(15 23 42 / 0.055); }
+html:not(.dark) .bg-white\/\[0\.06\] { background-color: rgb(15 23 42 / 0.06); }
+html:not(.dark) .bg-white\/\[0\.08\] { background-color: rgb(15 23 42 / 0.08); }
+html:not(.dark) .bg-white\/10 { background-color: rgb(15 23 42 / 0.1); }
+html:not(.dark) .bg-white\/15 { background-color: rgb(15 23 42 / 0.12); }
+html:not(.dark) .bg-white\/20 { background-color: rgb(15 23 42 / 0.16); }
+
+/* hover variants */
+html:not(.dark) .hover\:bg-white\/\[0\.03\]:hover { background-color: rgb(15 23 42 / 0.04); }
+html:not(.dark) .hover\:bg-white\/\[0\.035\]:hover { background-color: rgb(15 23 42 / 0.045); }
+html:not(.dark) .hover\:bg-white\/\[0\.04\]:hover { background-color: rgb(15 23 42 / 0.05); }
+html:not(.dark) .hover\:bg-white\/\[0\.08\]:hover { background-color: rgb(15 23 42 / 0.085); }
+html:not(.dark) .focus-visible\:bg-white\/\[0\.05\]:focus-visible { background-color: rgb(15 23 42 / 0.055); }
+html:not(.dark) .focus\:bg-white\/\[0\.04\]:focus { background-color: rgb(15 23 42 / 0.05); }
+html:not(.dark) .group:hover .group-hover\:bg-white\/\[0\.04\] { background-color: rgb(15 23 42 / 0.05); }
+
+/* ---- border-white/[0.0X] → soft slate borders ---- */
+html:not(.dark) .border-white\/\[0\.04\] { border-color: rgb(15 23 42 / 0.06); }
+html:not(.dark) .border-white\/\[0\.05\] { border-color: rgb(15 23 42 / 0.07); }
+html:not(.dark) .border-white\/\[0\.06\] { border-color: rgb(15 23 42 / 0.08); }
+html:not(.dark) .border-white\/\[0\.08\] { border-color: rgb(15 23 42 / 0.1); }
+html:not(.dark) .border-white\/10 { border-color: rgb(15 23 42 / 0.1); }
+html:not(.dark) .border-white\/\[0\.12\] { border-color: rgb(15 23 42 / 0.12); }
+html:not(.dark) .border-white\/15 { border-color: rgb(15 23 42 / 0.14); }
+html:not(.dark) .border-white\/20 { border-color: rgb(15 23 42 / 0.18); }
+html:not(.dark) .hover\:border-white\/15:hover { border-color: rgb(15 23 42 / 0.16); }
+html:not(.dark) .hover\:border-white\/\[0\.12\]:hover { border-color: rgb(15 23 42 / 0.16); }
+html:not(.dark) .ring-white\/10 { --tw-ring-color: rgb(15 23 42 / 0.1); }
+
+/* divide */
+html:not(.dark) .divide-white\/\[0\.04\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(15 23 42 / 0.06);
+}
+html:not(.dark) .divide-white\/\[0\.05\] > :not([hidden]) ~ :not([hidden]) {
+  border-color: rgb(15 23 42 / 0.07);
+}
+
+/* ---- bg-black/XX → light translucent surfaces (for nav, modals, etc.) ---- */
+html:not(.dark) .bg-black\/30 { background-color: rgb(255 255 255 / 0.7); }
+html:not(.dark) .bg-black\/40 { background-color: rgb(255 255 255 / 0.6); }
+html:not(.dark) .bg-black\/60 { background-color: rgb(248 250 252 / 0.85); }
+html:not(.dark) .bg-black\/70 { background-color: rgb(15 23 42 / 0.35); }
+
+/* arbitrary near-black backgrounds used in scan modal / terminal */
+html:not(.dark) .bg-\[\#0a0a0a\]\/90 {
+  background-color: rgb(248 250 252 / 0.95);
+}
+
+/* black-ink terminal blocks → keep dark-tinted but lighter for legibility on white */
+html:not(.dark) .bg-black\/40.font-mono,
+html:not(.dark) .bg-black\/60.font-mono {
+  background-color: rgb(15 23 42 / 0.92);
+  color: rgb(241 245 249 / 0.88);
+}
+
+/* gradient surfaces (cards built from white/X gradients) */
+html:not(.dark) .from-white\/\[0\.04\] { --tw-gradient-from: rgb(15 23 42 / 0.045) var(--tw-gradient-from-position); --tw-gradient-to: rgb(15 23 42 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+html:not(.dark) .from-white\/\[0\.03\] { --tw-gradient-from: rgb(15 23 42 / 0.04) var(--tw-gradient-from-position); --tw-gradient-to: rgb(15 23 42 / 0) var(--tw-gradient-to-position); --tw-gradient-stops: var(--tw-gradient-from), var(--tw-gradient-to); }
+html:not(.dark) .to-white\/\[0\.01\] { --tw-gradient-to: rgb(15 23 42 / 0.015) var(--tw-gradient-to-position); }
+html:not(.dark) .to-white\/\[0\.02\] { --tw-gradient-to: rgb(15 23 42 / 0.025) var(--tw-gradient-to-position); }
+
+/* radial glow used on hero/auth — make sure it works on white too */
+html:not(.dark) body {
+  background: hsl(var(--background));
+}
+
+/* topbar/sidebar bg-black/30 with backdrop blur — ensure readable */
+html:not(.dark) header.bg-black\/40,
+html:not(.dark) aside.bg-black\/30 {
+  background-color: rgb(255 255 255 / 0.75);
+  border-color: rgb(15 23 42 / 0.08);
+}
+
+/* shimmer skeleton */
+html:not(.dark) .shimmer,
+html:not(.dark) .after\:bg-gradient-to-r::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(15, 23, 42, 0.06),
+    transparent
+  );
+  background-size: 200% 100%;
+}
+
+/* =========================================================
+   Light-mode overrides for lime / neon-green elements.
+   Bright lime (#6bf900, lime-300/400) is invisible on white.
+   Replace with a darker forest green that stays readable.
+   ========================================================= */
+
+/* --  text  -- */
+html:not(.dark) .text-lime-300 { color: #2d7a00 !important; }
+html:not(.dark) .text-lime-400 { color: #2d7a00 !important; }
+html:not(.dark) .text-lime-200 { color: #3a9200 !important; }
+
+/* group-hover variants */
+html:not(.dark) .group:hover .group-hover\:text-lime-300 { color: #2d7a00 !important; }
+
+/* --  backgrounds  -- */
+html:not(.dark) .bg-lime-400 { background-color: #2d7a00 !important; }
+html:not(.dark) .bg-lime-300 { background-color: #3a9200 !important; }
+html:not(.dark) .bg-lime-400\/10 { background-color: rgba(45,122,0,0.12) !important; }
+html:not(.dark) .bg-lime-400\/\[0\.04\] { background-color: rgba(45,122,0,0.07) !important; }
+html:not(.dark) .bg-lime-400\/\[0\.06\] { background-color: rgba(45,122,0,0.09) !important; }
+html:not(.dark) .bg-lime-400\/15 { background-color: rgba(45,122,0,0.15) !important; }
+html:not(.dark) .from-lime-300 { --tw-gradient-from: #3a9200; }
+html:not(.dark) .from-lime-400 { --tw-gradient-from: #2d7a00; }
+html:not(.dark) .to-lime-300 { --tw-gradient-to: #3a9200; }
+html:not(.dark) .to-lime-700 { --tw-gradient-to: #1a4a00; }
+html:not(.dark) .via-lime-500 { --tw-gradient-stops: var(--tw-gradient-from), #256600, var(--tw-gradient-to); }
+
+/* --  borders  -- */
+html:not(.dark) .border-lime-400\/20 { border-color: rgba(45,122,0,0.30) !important; }
+html:not(.dark) .border-lime-400\/30 { border-color: rgba(45,122,0,0.40) !important; }
+html:not(.dark) .border-lime-400\/15 { border-color: rgba(45,122,0,0.25) !important; }
+html:not(.dark) .border-lime-400\/25 { border-color: rgba(45,122,0,0.35) !important; }
+html:not(.dark) .border-lime-400 { border-color: #2d7a00 !important; }
+
+/* hover border */
+html:not(.dark) .hover\:border-lime-400\/20:hover { border-color: rgba(45,122,0,0.30) !important; }
+html:not(.dark) .group:hover .group-hover\:border-lime-400\/20 { border-color: rgba(45,122,0,0.30) !important; }
+
+/* --  box shadows / glows  -- */
+html:not(.dark) .shadow-\[0_0_14px_rgba\(107\,249\,0\,0\.5\)\] { box-shadow: 0 0 14px rgba(45,122,0,0.4) !important; }
+html:not(.dark) .shadow-\[0_0_8px_rgba\(107\,249\,0\,0\.7\)\]  { box-shadow: 0 0 8px  rgba(45,122,0,0.5) !important; }
+html:not(.dark) .shadow-\[0_0_12px_rgba\(107\,249\,0\,0\.6\)\] { box-shadow: 0 0 12px rgba(45,122,0,0.4) !important; }
+html:not(.dark) .shadow-\[0_0_24px_-6px_rgba\(107\,249\,0\,0\.5\)\] { box-shadow: 0 0 24px -6px rgba(45,122,0,0.4) !important; }
+html:not(.dark) .shadow-\[0_0_18px_-4px_rgba\(107\,249\,0\,0\.5\)\] { box-shadow: 0 0 18px -4px rgba(45,122,0,0.4) !important; }
+
+/* --  progress bar / score ring  -- */
+html:not(.dark) .bg-gradient-to-r.from-lime-500 { background: linear-gradient(to right, #256600, #3a9200) !important; }
+
+/* --  animate-pulse dot on sidebar  -- */
+html:not(.dark) .bg-lime-400.animate-pulse { background-color: #2d7a00 !important; }
