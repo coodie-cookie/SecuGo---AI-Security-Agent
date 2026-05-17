@@ -51,16 +51,16 @@ export function OnboardingSlide1() {
         { top: "20%", right: "8%", d: 0.3 },
         { bottom: "15%", left: "18%", d: 0.6 },
         { bottom: "10%", right: "12%", d: 0.9 },
-      ].map((p, i) => (
+      ].map(({ d, ...pos }, i) => (
         <motion.div
           key={i}
           className="absolute h-1.5 w-1.5 rounded-full bg-lime-300"
           style={{
-            ...p,
+            ...pos,
             boxShadow: "0 0 12px rgba(107,249,0,0.8)",
           }}
           animate={{ y: [0, -8, 0], opacity: [0.4, 1, 0.4] }}
-          transition={{ duration: 3, delay: p.d, repeat: Infinity }}
+          transition={{ duration: 3, delay: d, repeat: Infinity }}
         />
       ))}
     </div>
