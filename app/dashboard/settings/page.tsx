@@ -186,17 +186,7 @@ export default function SettingsPage() {
           subtitle="Run a fresh scan whenever new commits land on the default branch"
           enabled={prefs.autoScan}
           onToggle={() => togglePref("autoScan")}
-        />
-        <Toggle
-          icon={Bell}
-          title="Email me on critical findings"
-          subtitle={
-            prefs.emailCritical
-              ? `Alerts will be sent to ${user?.email ?? "your email"}`
-              : "Get notified when a scan finds critical issues"
-          }
-          enabled={prefs.emailCritical}
-          onToggle={() => togglePref("emailCritical")}
+          comingSoon
         />
         <Toggle
           icon={Bell}
@@ -204,23 +194,8 @@ export default function SettingsPage() {
           subtitle="A short summary of changes across all your repos, every Monday"
           enabled={prefs.weeklySummary}
           onToggle={() => togglePref("weeklySummary")}
+          comingSoon
         />
-
-        {/* Email info callout */}
-        {(prefs.emailCritical || prefs.weeklySummary) && (
-          <motion.div
-            initial={{ opacity: 0, y: 4 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="flex items-start gap-3 rounded-xl border border-lime-400/15 bg-lime-400/[0.04] p-4"
-          >
-            <Info className="h-4 w-4 text-lime-300 shrink-0 mt-0.5" />
-            <p className="text-xs text-white/65 leading-relaxed">
-              Emails will be sent to{" "}
-              <span className="text-white font-medium">{user?.email}</span>.
-              Notifications fire automatically after each completed scan.
-            </p>
-          </motion.div>
-        )}
       </Section>
 
       {/* Danger zone */}
@@ -321,26 +296,38 @@ function Toggle({
   subtitle,
   enabled,
   onToggle,
+  comingSoon,
 }: {
   icon: any;
   title: string;
   subtitle: string;
   enabled: boolean;
   onToggle: () => void;
+  comingSoon?: boolean;
 }) {
   return (
-    <div className="flex items-center gap-4 py-3 border-b border-white/[0.04] last:border-0">
+    <div className={`flex items-center gap-4 py-3 border-b border-white/[0.04] last:border-0 ${comingSoon ? "opacity-50" : ""}`}>
       <div className="h-10 w-10 rounded-xl bg-white/[0.04] border border-white/[0.06] flex items-center justify-center shrink-0">
         <Icon className="h-4 w-4 text-white/65" />
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-sm font-medium">{title}</div>
+        <div className="flex items-center gap-2">
+          <span className="text-sm font-medium">{title}</span>
+          {comingSoon && (
+            <span className="text-[10px] font-medium px-1.5 py-0.5 rounded-full bg-white/[0.06] border border-white/[0.1] text-white/45 tracking-wide uppercase">
+              Soon
+            </span>
+          )}
+        </div>
         <div className="text-xs text-white/45 mt-0.5">{subtitle}</div>
       </div>
       <button
-        onClick={onToggle}
+        onClick={comingSoon ? undefined : onToggle}
+        disabled={comingSoon}
         className={`relative h-6 w-10 rounded-full transition-all ${
-          enabled
+          comingSoon
+            ? "bg-white/[0.08] cursor-not-allowed"
+            : enabled
             ? "bg-lime-400 shadow-[0_0_14px_rgba(107,249,0,0.5)]"
             : "bg-white/[0.08]"
         }`}

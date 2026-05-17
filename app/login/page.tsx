@@ -118,9 +118,9 @@ export default function LoginPage() {
               </button>
             </div>
 
-            <div className="mt-6 flex items-center gap-2 text-xs text-white/40">
+            <div className="mt-6 flex items-center justify-center gap-2 text-xs text-white/40">
               <ShieldCheck className="h-3.5 w-3.5 text-lime-400" />
-              Read-only access to repos you choose. Revoke anytime.
+              Secure read-only GitHub access. Revoke anytime.
             </div>
 
             <p className="mt-7 text-center text-[11px] text-white/35 leading-relaxed">

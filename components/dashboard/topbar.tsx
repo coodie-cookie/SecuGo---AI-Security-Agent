@@ -1,8 +1,7 @@
 "use client";
 
-import { Bell, Command, Search } from "lucide-react";
+import { Command, Search, Zap } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 export function Topbar({ email }: { email?: string }) {
@@ -21,11 +20,11 @@ export function Topbar({ email }: { email?: string }) {
         </div>
       </div>
       <div className="ml-auto flex items-center gap-1">
+        <span className="hidden sm:inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#6bf900]/10 border border-[#6bf900]/30 text-[#6bf900] text-[10px] font-mono tracking-widest uppercase mx-2">
+          <Zap className="h-2.5 w-2.5" />
+          Builder +
+        </span>
         <ThemeToggle />
-        <Button variant="ghost" size="icon" className="relative">
-          <Bell className="h-4 w-4" />
-          <span className="absolute top-2 right-2 h-1.5 w-1.5 rounded-full bg-lime-400 shadow-[0_0_8px_rgba(107,249,0,0.7)]" />
-        </Button>
         <div className="ml-2 flex items-center gap-2.5 rounded-full border border-white/[0.08] bg-white/[0.02] pl-1 pr-3 py-1">
           <Avatar className="h-7 w-7">
             <AvatarFallback>

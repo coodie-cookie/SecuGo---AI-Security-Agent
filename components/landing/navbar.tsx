@@ -1,13 +1,32 @@
 "use client";
 
 import Link from "next/link";
+import { usePathname, useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { Logo } from "@/components/brand/logo";
 import { Button } from "@/components/ui/button";
 import { Github } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
+const NAV_LINKS = [
+  { label: "Features", anchor: "features" },
+  { label: "How it works", anchor: "how" },
+  { label: "Why SecuGo", anchor: "why" },
+];
+
 export function LandingNavbar() {
+  const pathname = usePathname();
+  const router = useRouter();
+
+  const scrollTo = (anchor: string) => {
+    if (pathname !== "/") {
+      router.push(`/#${anchor}`);
+      return;
+    }
+    const el = document.getElementById(anchor);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  };
+
   return (
     <motion.header
       initial={{ y: -20, opacity: 0 }}
@@ -20,30 +39,24 @@ export function LandingNavbar() {
           <Logo size="sm" />
         </Link>
         <nav className="hidden md:flex items-center gap-1 text-sm">
+          {NAV_LINKS.map(({ label, anchor }) => (
+            <button
+              key={anchor}
+              onClick={() => scrollTo(anchor)}
+              className="px-3 py-2 text-white/60 hover:text-white transition-colors"
+            >
+              {label}
+            </button>
+          ))}
           <Link
-            href="#features"
+            href="/pricing"
             className="px-3 py-2 text-white/60 hover:text-white transition-colors"
           >
-            Features
-          </Link>
-          <Link
-            href="#how"
-            className="px-3 py-2 text-white/60 hover:text-white transition-colors"
-          >
-            How it works
-          </Link>
-          <Link
-            href="#why"
-            className="px-3 py-2 text-white/60 hover:text-white transition-colors"
-          >
-            Why SecuGo
+            Pricing
           </Link>
         </nav>
         <div className="flex items-center gap-2">
           <ThemeToggle size="sm" />
-          <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
-            <Link href="/login">Sign in</Link>
-          </Button>
           <Button asChild size="sm">
             <Link href="/login">
               <Github className="h-4 w-4" />

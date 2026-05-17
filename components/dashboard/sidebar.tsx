@@ -26,7 +26,7 @@ export function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="hidden lg:flex w-64 shrink-0 flex-col border-r border-white/[0.06] bg-black/30 backdrop-blur-xl">
+    <aside className="hidden lg:flex fixed top-0 left-0 h-screen w-64 shrink-0 flex-col border-r border-white/[0.06] bg-black/30 backdrop-blur-xl z-40">
       <div className="px-5 pt-5 pb-4">
         <Link href="/dashboard">
           <Logo size="sm" />
@@ -37,7 +37,7 @@ export function Sidebar() {
         <Button asChild size="sm" className="w-full justify-start">
           <Link href="/dashboard/repositories">
             <Plus className="h-4 w-4" />
-            Connect repository
+            New scan
           </Link>
         </Button>
       </div>
@@ -76,16 +76,6 @@ export function Sidebar() {
           );
         })}
       </nav>
-
-      <div className="m-3 rounded-2xl border border-lime-400/15 bg-gradient-to-b from-lime-400/[0.04] to-transparent p-4">
-        <div className="text-xs text-lime-300 font-medium">Public beta</div>
-        <p className="mt-1 text-xs text-white/55 leading-relaxed">
-          Free for indie hackers and startups under 10 people.
-        </p>
-        <Button size="sm" variant="outline" className="mt-3 w-full">
-          Upgrade later
-        </Button>
-      </div>
     </aside>
   );
 }

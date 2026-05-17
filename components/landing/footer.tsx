@@ -16,19 +16,18 @@ export function Footer() {
           <FooterCol
             heading="Product"
             links={[
-              ["Features", "#features"],
-              ["How it works", "#how"],
-              ["Pricing", "#"],
-              ["Changelog", "#"],
+              ["Features", "/#features"],
+              ["How it works", "/#how"],
+              ["Pricing", "/pricing"],
             ]}
           />
           <FooterCol
             heading="Company"
             links={[
-              ["About", "#"],
-              ["Security", "#"],
-              ["Privacy", "#"],
-              ["Terms", "#"],
+              ["About", "/about"],
+              ["Security", "/security"],
+              ["Privacy", "/privacy"],
+              ["Terms", "/terms"],
             ]}
           />
         </div>
