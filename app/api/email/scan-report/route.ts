@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
 
     // Generate PDF
     const pdfBuffer = await renderToBuffer(
-      createElement(ScanReportPDF, { scan, repo, vulnerabilities })
+      createElement(ScanReportPDF, { scan, repo, vulnerabilities }) as any
     );
 
     const criticalCount = vulnerabilities.filter((v) => v.severity === "critical").length;
