@@ -1,113 +1,99 @@
-# SecuGo
+# SecuGo — AI Security Agent for GitHub
 
-**AI-powered security for modern startups and AI-built apps.**
+> **Built for the "Build AI Agents for Security" Hackathon · Powered by Google Gemini**
 
-SecuGo scans your repositories for exposed secrets, vulnerabilities, and dangerous mistakes — then explains everything in beginner-friendly language with AI-powered guidance. Built for indie hackers, vibe coders, and startup teams shipping with Cursor, Claude, Lovable, Bolt, and friends.
+SecuGo is a production-ready AI security agent that connects to your GitHub repositories and automatically detects exposed secrets, vulnerable code patterns, and dangerous misconfigurations — then explains every finding in plain English and generates a ready-to-use fix prompt for your AI coding assistant.
 
----
-
-## ✨ What's inside
-
-- **Cinematic landing page** — hero, scan preview, features, "why AI-built apps need security", how-it-works, testimonials, CTA, footer.
-- **Premium 4-slide onboarding** — fullscreen, animated, skippable.
-- **GitHub-OAuth login** via Supabase Auth (graceful demo-mode fallback).
-- **Dashboard** — overview, repositories, scans, scan detail with vulnerability cards, AI assistant chat, settings.
-- **Mock scanning engine** — animated terminal logs, progress, severity breakdowns. Architecture is ready to plug in Gitleaks / TruffleHog / Semgrep / CodeQL.
-- **AI assistant** — chat UI with suggestion chips and context-aware mock responses.
-- **Supabase schema** — `profiles`, `onboarding_state`, `repositories`, `scans`, `vulnerabilities`, `chat_messages`, all with RLS.
-
-## 🧱 Tech stack
-
-- Next.js 15 (App Router) · TypeScript · Tailwind CSS
-- shadcn/ui-style primitives · Framer Motion · Lucide React
-- Supabase (Auth + Postgres) — `@supabase/ssr`
-- Vercel-ready
-
-## 🚀 Getting started
-
-```bash
-# 1. Install deps
-npm install
-
-# 2. (Optional) wire up Supabase
-cp .env.local.example .env.local
-# Fill in NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY
-
-# 3. Run
-npm run dev
-```
-
-Open <http://localhost:3000>.
-
-> **No Supabase keys?** No problem. SecuGo runs in **demo mode**: clicking *Continue with GitHub* sets a demo session cookie and walks you through onboarding into the dashboard with realistic mock data.
-
-## 🔐 Supabase setup
-
-1. Create a new Supabase project.
-2. In **Authentication → Providers**, enable **GitHub** and add your GitHub OAuth app credentials. Set the redirect URL to:
-   ```
-   https://<your-domain>/auth/callback
-   ```
-3. In the SQL editor, run the schema:
-   ```bash
-   supabase/schema.sql
-   ```
-4. Copy your project URL + anon key into `.env.local`.
-
-## 🗂️ Project structure
-
-```
-app/
-  (landing)/page.tsx           # Marketing site
-  onboarding/                   # 4-slide cinematic intro
-  login/                        # GitHub OAuth entry
-  auth/callback/route.ts        # OAuth code exchange
-  dashboard/
-    layout.tsx                  # Sidebar + topbar
-    page.tsx                    # Overview (stats, score, activity)
-    repositories/               # Repo grid + scan trigger
-    scans/                      # Scan history
-    scans/[id]/                 # Vulnerability detail
-    assistant/                  # AI chat
-    settings/                   # Profile, integrations, prefs
-components/
-  brand/                        # Logo
-  effects/                      # Particles, grid, glow
-  landing/                      # Hero, features, CTA, ...
-  onboarding/                   # 4 slide visuals
-  dashboard/                    # Sidebar, topbar, cards, modals
-  ui/                           # Button, Card, Badge, Input, ...
-lib/
-  supabase/                     # client, server, middleware helpers
-  mock-data.ts                  # Realistic demo data
-  utils.ts                      # cn(), time formatting
-types/
-  index.ts                      # Repository, Vulnerability, Scan, ...
-supabase/
-  schema.sql                    # Postgres schema + RLS policies
-middleware.ts                   # Route protection + Supabase session refresh
-```
-
-## 🧪 Demo highlights
-
-- Visit `/` for the landing page.
-- Visit `/onboarding` to see the 4-slide flow.
-- Visit `/login` and click *Continue with GitHub* — without env vars, you'll be dropped into the dashboard via demo mode.
-- From the dashboard:
-  - **Repositories** → click *Scan repository* on any card for the animated terminal.
-  - **Scans** → click any scan to see the vulnerability cards with AI explanations and copy-pasteable fixes.
-  - **AI Assistant** → ask a question or pick a suggestion chip.
-
-## 🧭 Plugging in real scanning
-
-The mock engine in `components/dashboard/scan-modal.tsx` and the data shape in `lib/mock-data.ts` mirror what real scanners emit:
-
-- **Gitleaks / TruffleHog** → `category: 'secret'`
-- **npm audit / Snyk / Trivy** → `category: 'dependency'`
-- **Semgrep / CodeQL** → `category: 'auth' | 'injection' | 'config'`
-
-Replace the in-memory data with rows from `vulnerabilities`, kick off scans via a Supabase Edge Function or background worker, and the UI is ready.
+**Live demo →** _coming soon (deploying now)_
 
 ---
 
-Made with care for builders. Stay safe out there.
+## The Problem
+
+AI coding tools (Cursor, Copilot, Bolt, Lovable) have made shipping faster than ever — but they also introduce security issues that developers don't notice until it's too late. Exposed API keys, missing auth checks, SQL injection, unprotected webhooks — all real, all common, all fixable.
+
+There was no lightweight, AI-native tool built for how modern developers actually work. SecuGo is that tool.
+
+---
+
+## What SecuGo Does
+
+**1. Connects to GitHub via OAuth** — read-only access, no setup required beyond signing in.
+
+**2. Scans repositories with a hybrid engine:**
+- Deterministic regex patterns catch secrets and known vulnerability signatures instantly
+- Google Gemini performs deep contextual analysis on high-risk files — understanding _why_ something is dangerous, not just that it matches a pattern
+
+**3. Git diff scanning** — on repeat scans, only changed files are re-analyzed. Results are cached by file SHA. Near-instant on follow-up scans.
+
+**4. Explains every finding in plain English** — severity level, what's wrong, why it matters, and a suggested fix — all generated by Gemini.
+
+**5. Generates a one-click AI fix prompt** — copy a structured prompt directly into Cursor, Claude, or any AI coding assistant to patch all issues in one shot.
+
+**6. Sends PDF reports by email** — full scan summaries delivered via Resend with a downloadable PDF attachment.
+
+**7. Live scan terminal** — real-time log streaming via Supabase Realtime so you watch the agent work, line by line.
+
+---
+
+## What the AI Agent Catches
+
+| Category | Examples |
+|---|---|
+| **Exposed secrets** | OpenAI keys, Anthropic keys, Stripe keys, GitHub tokens, AWS credentials, JWT secrets, database passwords, `NEXT_PUBLIC_` leaked secrets |
+| **Authentication** | Missing server-side auth checks, unprotected API routes, admin routes without guards |
+| **Injection** | SQL injection via raw queries, `eval()` usage, `dangerouslySetInnerHTML` |
+| **Configuration** | CORS wildcard (`*`), missing `.gitignore`, `.env` files committed to repo |
+| **API security** | Stripe webhooks without signature verification, AI SDK routes without rate limiting |
+| **Information leakage** | `console.log` statements exposing sensitive data |
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 15 (App Router) · TypeScript |
+| AI Agent | Google Gemini (`gemini-2.0-flash-lite`) |
+| Auth | Supabase Auth · GitHub OAuth |
+| Database | Supabase Postgres with Row Level Security |
+| Realtime | Supabase Realtime (live scan logs) |
+| Email / PDF | Resend · `@react-pdf/renderer` |
+| UI | Tailwind CSS · Framer Motion · shadcn/ui |
+| Deployment | Vercel |
+
+---
+
+## Key Architecture Decisions
+
+- **Token security** — GitHub OAuth tokens are never sent in request bodies or exposed to the client. They are read exclusively server-side from the encrypted Supabase session.
+- **IDOR protection** — every API route cross-checks the requested resource against the authenticated user's ID before returning data.
+- **File-level SHA caching** — scan results are cached by file SHA so unchanged files are never re-analyzed, making repeat scans near-instant.
+- **Deduplication** — findings are deduplicated by `file + line` and normalized `file + title` to prevent double-reporting across regex and AI passes.
+- **Self-scanned** — SecuGo was scanned by itself during development. 9 real vulnerabilities were found and fixed before submission.
+
+---
+
+## Hackathon Theme Alignment
+
+This project was built for the **"Build AI Agents for Security"** track sponsored by Google and Gemini.
+
+SecuGo is an AI agent in the true sense: it autonomously reads code, reasons about security context, generates natural language explanations, and produces actionable remediation steps — without human intervention at any step of the pipeline. Gemini is the reasoning layer that transforms raw code into security intelligence.
+
+---
+
+## Pages & Features
+
+- `/` — Marketing landing page
+- `/pricing` — Pricing tiers with monthly/yearly toggle and feature comparison table
+- `/login` — GitHub OAuth sign-in
+- `/dashboard` — Overview with repo scores, recent scans, risk levels
+- `/dashboard/repositories` — Connect and scan repositories
+- `/dashboard/scans/[id]` — Full vulnerability report with AI explanations and fix prompts
+- `/dashboard/assistant` — AI security assistant chat (context-aware, session-persistent)
+- `/dashboard/settings` — Account, integrations, scan preferences
+- `/about` · `/security` · `/privacy` · `/terms` — Legal and trust pages
+
+---
+
+Built by [@coodie-cookie](https://github.com/coodie-cookie) · Powered by Google Gemini
