@@ -79,11 +79,11 @@ export function FixPromptModal({
                       AI fix prompt
                       <span className="inline-flex items-center gap-1 rounded-full border border-lime-400/20 bg-lime-400/[0.06] px-2 py-0.5 text-[10px] text-lime-300">
                         <Sparkles className="h-2.5 w-2.5" />
-                        Paste into Claude
+                        Works with any AI
                       </span>
                     </div>
                     <div className="text-xs text-white/45 mt-1 max-w-md">
-                      Copy this prompt and paste it into the Claude extension in VS Code, Cursor, or claude.ai — it will fix all {issueCount} issue{issueCount === 1 ? "" : "s"} in <span className="font-mono text-white/65">{repoName}</span> in one go.
+                      Copy this prompt and paste it into Claude, ChatGPT, Cursor, Copilot, or any AI coding assistant — it will fix all {issueCount} issue{issueCount === 1 ? "" : "s"} in <span className="font-mono text-white/65">{repoName}</span> in one go.
                     </div>
                   </div>
                 </div>
