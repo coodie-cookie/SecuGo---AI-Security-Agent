@@ -14,7 +14,6 @@ import { useGitHubSync } from "@/hooks/use-github-sync";
 import { AutoSyncCounter } from "@/components/dashboard/auto-sync-counter";
 import type { Repository } from "@/types";
 
-const FREE_REPO_LIMIT = 2;
 
 export default function RepositoriesPage() {
   const { repos, loading, syncing, error, syncFromGitHub, connectRepo, disconnectRepo } = useRealtimeRepos();
@@ -133,7 +132,6 @@ export default function RepositoriesPage() {
         onClose={() => setPickerOpen(false)}
         connectedFullNames={connectedFullNames}
         onConnect={connectRepo}
-        repoLimit={FREE_REPO_LIMIT}
         connectedCount={repos.length}
       />
     </div>
