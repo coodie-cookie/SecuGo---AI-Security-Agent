@@ -82,6 +82,18 @@ export function useRealtimeRepos() {
       });
 
       await supabase.from("repositories").upsert(rows, { onConflict: "user_id,full_name" });
+
+      // Remove repos that no longer exist on GitHub (deleted/renamed/access revoked).
+      // Without this, stale rows accumulate in the dashboard forever.
+      const liveIds = ghRepos.map((r) => r.id);
+      if (liveIds.length > 0) {
+        await supabase
+          .from("repositories")
+          .delete()
+          .eq("user_id", session.user.id)
+          .not("github_id", "in", `(${liveIds.join(",")})`);
+      }
+
       await loadFromDb(session.user.id);
     } catch (e: any) {
       setError(e.message);
