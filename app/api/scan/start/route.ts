@@ -245,18 +245,47 @@ export async function POST(req: NextRequest) {
         await supabase.from("scan_cache").upsert(newCacheEntries, { onConflict: "file_sha,user_id" });
       }
 
-      // If diff scan with no changes, carry forward previous scan's vulnerabilities
+      // For ANY diff scan, carry forward previous findings from files we did NOT re-scan.
+      // The scanner only returns findings for changedFiles, so without this merge
+      // unchanged files would silently lose their vulnerabilities on every diff scan.
       let allFindings = findings;
-      if (isDiffScan && changedFiles?.length === 0) {
-        const { data: prevVulns } = await supabase
-          .from("vulnerabilities")
-          .select("*")
+      if (isDiffScan) {
+        const { data: latestScan } = await supabase
+          .from("scans")
+          .select("id")
           .eq("repository_id", repositoryId)
-          .eq("status", "open")
-          .order("detected_at", { ascending: false })
-          .limit(100);
-        if (prevVulns && prevVulns.length > 0) {
-          await onProgress(`Carrying forward ${prevVulns.length} existing finding${prevVulns.length === 1 ? "" : "s"} from last scan.`);
+          .eq("status", "complete")
+          .neq("id", scan.id)
+          .order("completed_at", { ascending: false })
+          .limit(1)
+          .single();
+
+        if (latestScan) {
+          const { data: prevVulns } = await supabase
+            .from("vulnerabilities")
+            .select("*")
+            .eq("scan_id", latestScan.id);
+
+          if (prevVulns && prevVulns.length > 0) {
+            const reScannedPaths = new Set(changedFiles ?? []);
+            const carriedForward = prevVulns.filter((v: any) => !reScannedPaths.has(v.file));
+
+            if (carriedForward.length > 0) {
+              await onProgress(`Carrying forward ${carriedForward.length} existing finding${carriedForward.length === 1 ? "" : "s"} from unchanged files.`);
+              const carriedFindings = carriedForward.map((v: any) => ({
+                title: v.title,
+                severity: v.severity,
+                category: v.category,
+                file: v.file,
+                line: v.line,
+                description: v.description,
+                aiExplanation: v.ai_explanation,
+                suggestedFix: v.suggested_fix,
+                codeSnippet: v.code_snippet,
+              }));
+              allFindings = [...findings, ...carriedFindings];
+            }
+          }
         }
       }
 
