@@ -38,14 +38,37 @@ There was no lightweight, AI-native tool built for how modern developers actuall
 
 ## What the AI Agent Catches
 
-| Category | Examples |
-|---|---|
-| **Exposed secrets** | OpenAI keys, Anthropic keys, Stripe keys, GitHub tokens, AWS credentials, JWT secrets, database passwords, `NEXT_PUBLIC_` leaked secrets |
-| **Authentication** | Missing server-side auth checks, unprotected API routes, admin routes without guards |
-| **Injection** | SQL injection via raw queries, `eval()` usage, `dangerouslySetInnerHTML` |
-| **Configuration** | CORS wildcard (`*`), missing `.gitignore`, `.env` files committed to repo |
-| **API security** | Stripe webhooks without signature verification, AI SDK routes without rate limiting |
-| **Information leakage** | `console.log` statements exposing sensitive data |
+SecuGo catches both the obvious and the non-obvious — the mistakes every security audit finds, and the subtle ones that slip through because they're specific to how modern AI-assisted apps are built.
+
+**Secrets & credential exposure**
+- Exposed OpenAI, Anthropic, Google / Gemini API keys
+- Stripe live and test secret keys
+- GitHub Personal Access Tokens hardcoded in source
+- AWS access keys in code
+- Hardcoded JWT secrets and database passwords
+- Secrets accidentally exposed via `NEXT_PUBLIC_` environment variables (visible in the browser bundle)
+
+**Injection & XSS**
+- SQL injection via string concatenation on raw database queries
+- `eval()` on untrusted user input (JavaScript)
+- `eval()` on model output (Python — an LLM-specific risk)
+- `dangerouslySetInnerHTML` usage in React components (XSS vector)
+
+**Authentication & authorization**
+- Unprotected admin routes missing authentication guards
+- Missing Stripe webhook signature verification (allows forged events)
+- API routes with no rate limiting — critical for AI-powered endpoints that can be abused to drain API quotas
+
+**Configuration & infrastructure**
+- Wildcard CORS configuration (`Access-Control-Allow-Origin: *`)
+- `.env` files committed directly to the repository
+- Missing `.gitignore` entries that allow secrets to be committed accidentally
+
+**Information leakage**
+- `console.log` statements exposing sensitive runtime data in production
+
+**Gemini deep-scan (AI layer)**
+Beyond the deterministic patterns above, Gemini performs contextual analysis on the highest-risk files to catch logic-level issues that regex cannot — insecure data flows, missing validation, improper trust boundaries, and patterns unique to AI-generated code.
 
 ---
 
@@ -54,7 +77,7 @@ There was no lightweight, AI-native tool built for how modern developers actuall
 | Layer | Technology |
 |---|---|
 | Framework | Next.js 15 (App Router) · TypeScript |
-| AI Agent | Google Gemini (`gemini-2.0-flash-lite`) |
+| AI Agent | Google Gemini (`gemini-3.1-flash-lite`) |
 | Auth | Supabase Auth · GitHub OAuth |
 | Database | Supabase Postgres with Row Level Security |
 | Realtime | Supabase Realtime (live scan logs) |
