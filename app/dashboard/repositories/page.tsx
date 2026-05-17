@@ -2,24 +2,28 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { AlertTriangle, Github, Loader2, RefreshCw, Search } from "lucide-react";
+import { AlertTriangle, Github, Loader2, Plus, RefreshCw, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { RepositoryCard } from "@/components/dashboard/repository-card";
 import { ScanModal } from "@/components/dashboard/scan-modal";
+import { RepoPickerModal } from "@/components/dashboard/repo-picker-modal";
 import { useRealtimeRepos } from "@/hooks/use-realtime-repos";
 import { useGitHubSync } from "@/hooks/use-github-sync";
 import { AutoSyncCounter } from "@/components/dashboard/auto-sync-counter";
 import type { Repository } from "@/types";
 
+const FREE_REPO_LIMIT = 2;
+
 export default function RepositoriesPage() {
-  const { repos, loading, syncing, error, syncFromGitHub } = useRealtimeRepos();
+  const { repos, loading, syncing, error, syncFromGitHub, connectRepo, disconnectRepo } = useRealtimeRepos();
   const { updatedRepos } = useGitHubSync(repos);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState<Repository | null>(null);
   const [modal, setModal] = useState(false);
   const [forceScan, setForceScan] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const filtered = repos.filter(
     (r) =>
@@ -32,6 +36,8 @@ export default function RepositoriesPage() {
     setActive(repo);
     setModal(true);
   };
+
+  const connectedFullNames = new Set(repos.map((r) => r.fullName));
 
   return (
     <div className="space-y-7">
@@ -46,10 +52,14 @@ export default function RepositoriesPage() {
             {loading ? "Loading..." : `${repos.length} connected · pick one to scan`}
           </p>
         </div>
-        <div className="flex flex-col items-end mt-4">
-          <Button variant="secondary" onClick={syncFromGitHub} disabled={syncing || loading}>
+        <div className="flex items-center gap-2">
+          <Button variant="ghost" size="sm" onClick={syncFromGitHub} disabled={syncing || loading} className="text-white/50 hover:text-white">
             {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-            {syncing ? "Syncing..." : "Sync from GitHub"}
+            {syncing ? "Syncing..." : "Refresh"}
+          </Button>
+          <Button size="sm" onClick={() => setPickerOpen(true)} disabled={loading}>
+            <Plus className="h-4 w-4" />
+            Connect repository
           </Button>
           <AutoSyncCounter onTick={syncFromGitHub} />
         </div>
@@ -83,6 +93,7 @@ export default function RepositoriesPage() {
               hasUpdate={updatedRepos.has(r.id)}
               onScan={() => startScan(r)}
               onForceScan={() => startScan(r, { force: true })}
+              onDisconnect={() => disconnectRepo(r.id)}
               index={i}
             />
           ))}
@@ -94,11 +105,11 @@ export default function RepositoriesPage() {
           <div className="mx-auto h-12 w-12 rounded-full bg-white/[0.04] border border-white/[0.06] flex items-center justify-center">
             <Github className="h-5 w-5 text-white/40" />
           </div>
-          <div className="mt-4 text-base font-medium">No repositories found</div>
-          <p className="mt-1 text-sm text-white/45">Click Sync from GitHub to load your repos.</p>
-          <Button className="mt-5" onClick={syncFromGitHub} disabled={syncing}>
-            {syncing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Github className="h-4 w-4" />}
-            Sync from GitHub
+          <div className="mt-4 text-base font-medium">No repositories connected</div>
+          <p className="mt-1 text-sm text-white/45">Connect a GitHub repository to start scanning.</p>
+          <Button className="mt-5" onClick={() => setPickerOpen(true)}>
+            <Plus className="h-4 w-4" />
+            Connect repository
           </Button>
         </div>
       )}
@@ -110,7 +121,21 @@ export default function RepositoriesPage() {
         </div>
       )}
 
-      <ScanModal repo={active} open={modal} force={forceScan} onClose={() => { setModal(false); setActive(null); setForceScan(false); }} />
+      <ScanModal
+        repo={active}
+        open={modal}
+        force={forceScan}
+        onClose={() => { setModal(false); setActive(null); setForceScan(false); }}
+      />
+
+      <RepoPickerModal
+        open={pickerOpen}
+        onClose={() => setPickerOpen(false)}
+        connectedFullNames={connectedFullNames}
+        onConnect={connectRepo}
+        repoLimit={FREE_REPO_LIMIT}
+        connectedCount={repos.length}
+      />
     </div>
   );
 }

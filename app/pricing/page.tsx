@@ -36,6 +36,7 @@ const plans: Plan[] = [
     yearlyPrice: "$0",
     description: "For weekend builds and side projects.",
     features: [
+      { label: "2 active repositories", included: true },
       { label: "10 scans per week (40/month)", included: true },
       { label: "Up to 10k lines of code", included: true },
       { label: "Git diff scanning", included: true },
@@ -58,6 +59,7 @@ const plans: Plan[] = [
     yearlyNote: "$190/year — save $38",
     description: "For indie devs shipping production code.",
     features: [
+      { label: "Up to 15 active repositories", included: true },
       { label: "Unlimited scans", included: true },
       { label: "Up to 120k lines of code", included: true },
       { label: "Git diff scanning", included: true },
@@ -80,6 +82,7 @@ const plans: Plan[] = [
     yearlyNote: "$468/year — per user",
     description: "For teams that ship and need accountability.",
     features: [
+      { label: "Unlimited active repositories", included: true },
       { label: "Unlimited scans", included: true },
       { label: "Unlimited lines of code", included: true },
       { label: "Git diff scanning", included: true },
@@ -345,6 +348,7 @@ export default function PricingPage() {
                 <tbody>
                   {[
                     { feature: "Price", cells: ["$0 / month", "$19 / month", "$49 / month per user"] },
+                    { feature: "Active repositories", cells: ["2", "15", "Unlimited"] },
                     { feature: "Best for", cells: ["Students, hobby devs", "Serious builders, indie hackers", "Agencies, startups"] },
                     { feature: "Scans", cells: ["10 / week (40/month)", "Unlimited", "Unlimited"] },
                     { feature: "Repository size", cells: ["Up to 10k LOC", "Up to 120k LOC", "Unlimited LOC"] },
