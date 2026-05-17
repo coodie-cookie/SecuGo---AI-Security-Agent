@@ -15,10 +15,12 @@ export function ScanModal({
   repo,
   open,
   onClose,
+  force = false,
 }: {
   repo: Repository | null;
   open: boolean;
   onClose: () => void;
+  force?: boolean;
 }) {
   const router = useRouter();
   const [state, setState] = useState<ScanState>("idle");
@@ -106,6 +108,7 @@ export function ScanModal({
           repositoryId: repo.id,
           fullName: repo.fullName,
           branch,
+          force,
         }),
       })
         .then(async (res) => {

@@ -55,7 +55,7 @@ export async function POST(req: NextRequest) {
     if (!token)
       return Response.json({ error: "GitHub session expired. Please sign in again." }, { status: 401 });
 
-    const { repositoryId, fullName, branch, scanId } = await req.json();
+    const { repositoryId, fullName, branch, scanId, force } = await req.json();
     if (!repositoryId || !fullName)
       return Response.json({ error: "Missing required fields" }, { status: 400 });
 
@@ -88,8 +88,9 @@ export async function POST(req: NextRequest) {
     // 1. No previous SHA → full scan
     // 2. Same SHA → nothing changed → instant return using cached vulns
     // 3. Different SHA → diff scan (only changed files)
-    const noChange = !!(lastSha && latestSha && lastSha === latestSha);
-    const isDiffScan = !!(lastSha && latestSha && lastSha !== latestSha);
+    // `force` (user clicked "Clear cache & re-scan") bypasses 2 and 3.
+    const noChange = !force && !!(lastSha && latestSha && lastSha === latestSha);
+    const isDiffScan = !force && !!(lastSha && latestSha && lastSha !== latestSha);
 
     // Get changed files if this is a diff scan
     let changedFiles: string[] | null = null;
@@ -97,14 +98,18 @@ export async function POST(req: NextRequest) {
       changedFiles = await getChangedFiles(fullName, lastSha, latestSha, token);
     }
 
-    // Load file-level cache from Supabase
-    const { data: cacheRows } = await supabase
-      .from("scan_cache")
-      .select("file_sha, findings")
-      .eq("user_id", user.id);
-    const fileCache = new Map<string, any[]>(
-      (cacheRows ?? []).map((r: any) => [r.file_sha, r.findings])
-    );
+    // Load file-level cache from Supabase. Skip entirely when force=true so the
+    // scanner re-runs Gemini analysis on every file from scratch.
+    const fileCache = new Map<string, any[]>();
+    if (!force) {
+      const { data: cacheRows } = await supabase
+        .from("scan_cache")
+        .select("file_sha, findings")
+        .eq("user_id", user.id);
+      for (const r of cacheRows ?? []) {
+        fileCache.set((r as any).file_sha, (r as any).findings);
+      }
+    }
 
     // Create scan record
     const insertRow: any = {
@@ -216,7 +221,9 @@ export async function POST(req: NextRequest) {
       }
 
       // ── Changed files or first scan ─────────────────────────────────────
-      if (isDiffScan && changedFiles !== null) {
+      if (force) {
+        await onProgress("Force re-scan — cache cleared, scanning entire repository from scratch.");
+      } else if (isDiffScan && changedFiles !== null) {
         await onProgress(
           changedFiles.length === 0
             ? "No files changed since last scan — reusing cached results."

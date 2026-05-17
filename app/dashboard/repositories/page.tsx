@@ -19,6 +19,7 @@ export default function RepositoriesPage() {
   const [query, setQuery] = useState("");
   const [active, setActive] = useState<Repository | null>(null);
   const [modal, setModal] = useState(false);
+  const [forceScan, setForceScan] = useState(false);
 
   const filtered = repos.filter(
     (r) =>
@@ -26,7 +27,8 @@ export default function RepositoriesPage() {
       r.fullName.toLowerCase().includes(query.toLowerCase())
   );
 
-  const startScan = (repo: Repository) => {
+  const startScan = (repo: Repository, opts?: { force?: boolean }) => {
+    setForceScan(opts?.force ?? false);
     setActive(repo);
     setModal(true);
   };
@@ -80,6 +82,7 @@ export default function RepositoriesPage() {
               scanning={active?.id === r.id && modal}
               hasUpdate={updatedRepos.has(r.id)}
               onScan={() => startScan(r)}
+              onForceScan={() => startScan(r, { force: true })}
               index={i}
             />
           ))}
@@ -107,7 +110,7 @@ export default function RepositoriesPage() {
         </div>
       )}
 
-      <ScanModal repo={active} open={modal} onClose={() => { setModal(false); setActive(null); }} />
+      <ScanModal repo={active} open={modal} force={forceScan} onClose={() => { setModal(false); setActive(null); setForceScan(false); }} />
     </div>
   );
 }

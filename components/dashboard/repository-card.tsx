@@ -7,6 +7,7 @@ import {
   Globe,
   Lock,
   Loader2,
+  RotateCw,
   ScanSearch,
   Star,
 } from "lucide-react";
@@ -45,12 +46,14 @@ export function RepositoryCard({
   scanning,
   hasUpdate,
   onScan,
+  onForceScan,
   index = 0,
 }: {
   repo: Repository;
   scanning?: boolean;
   hasUpdate?: boolean;
   onScan?: () => void;
+  onForceScan?: () => void;
   index?: number;
 }) {
   const score = calcRepoScore(repo.riskLevel, repo.vulnerabilityCount);
@@ -134,13 +137,13 @@ export function RepositoryCard({
           )}
         </div>
 
-        <div className="mt-4">
+        <div className="mt-4 flex items-stretch gap-2">
           <Button
             size="sm"
             variant={hasUpdate ? "default" : scanning ? "secondary" : "outline"}
             onClick={onScan}
             disabled={scanning}
-            className="w-full"
+            className="flex-1"
           >
             {scanning ? (
               <><Loader2 className="h-3.5 w-3.5 animate-spin" />Scanning...</>
@@ -148,6 +151,18 @@ export function RepositoryCard({
               <><ScanSearch className="h-3.5 w-3.5" />{hasUpdate ? "Scan update" : "Scan repository"}</>
             )}
           </Button>
+          {onForceScan && (
+            <button
+              type="button"
+              onClick={onForceScan}
+              disabled={scanning}
+              title="Clear cache & full re-scan"
+              aria-label="Clear cache and full re-scan"
+              className="inline-flex items-center justify-center h-9 w-9 rounded-lg border border-white/[0.08] bg-white/[0.02] text-white/55 hover:text-white hover:border-white/20 hover:bg-white/[0.05] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            >
+              <RotateCw className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
       </div>
     </motion.div>
