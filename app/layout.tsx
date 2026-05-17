@@ -20,9 +20,6 @@ export const metadata: Metadata = {
       "Catch dangerous mistakes before production. Your AI security engineer for GitHub.",
     type: "website",
   },
-  icons: {
-    icon: [{ url: "/favicon.svg", type: "image/svg+xml" }],
-  },
 };
 
 const themeInitScript = `
