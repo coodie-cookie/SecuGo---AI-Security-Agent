@@ -25,9 +25,7 @@ export function Hero() {
           className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3.5 py-1.5 text-xs text-white/70 backdrop-blur-sm"
         >
           <Sparkles className="h-3.5 w-3.5 text-lime-400" />
-          AI security for the vibe-coding era
-          <span className="ml-1 text-white/30">•</span>
-          <span className="text-lime-400/90">Public beta</span>
+          Enrolled for the Google hackathon
         </motion.div>
 
         <motion.h1
@@ -36,9 +34,9 @@ export function Hero() {
           transition={{ duration: 0.7, delay: 0.05, ease: "easeOut" }}
           className="mt-6 text-balance text-5xl md:text-7xl font-semibold tracking-tight leading-[1.02]"
         >
-          <span className="text-gradient-subtle">Security for</span>
+          <span className="text-gradient-subtle">Easy security for your</span>
           <br />
-          <span className="text-gradient">AI-built apps.</span>
+          <span className="text-gradient">apps ready for production.</span>
         </motion.h1>
 
         <motion.p

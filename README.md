@@ -4,7 +4,7 @@
 
 SecuGo is a production-ready AI security agent that connects to your GitHub repositories and automatically detects exposed secrets, vulnerable code patterns, and dangerous misconfigurations — then explains every finding in plain English and generates a ready-to-use fix prompt for your AI coding assistant.
 
-**Live demo →** _coming soon (deploying now)_
+**Live demo →** https://secugo-ai-security-agent.vercel.app
 
 ---
 
